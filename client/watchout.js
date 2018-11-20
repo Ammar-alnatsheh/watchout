@@ -37,20 +37,28 @@ var updateBestScore = function() {
 class Player {
 
   constructor(gameOptions) {
-
-  this.path = 'm-7.5,1.62413c0,-5.04095 4.08318,-9.12413 9.12414,-9.12413c5.04096,0 9.70345,5.53145 11.87586,9.12413c-2.02759,2.72372 -6.8349,9.12415 -11.87586,9.12415c-5.04096,0 -9.12414,-4.08318 -9.12414,-9.12415z';
   this.x = 0;
+  this.cx = 25;
   this.y = 0;
-  this.angle = 0;
-  this.r = 30;
-  this.gameOptions = gameOptions;
+  this.cy = 25;
+  this.r = 23;
+
 }
 
-  render(to) {
-    this.el = to.append('svg:path').attr('d', this.path);
+  render(board) {
+    this.el = board.append('svg:circle')
+                   .attr('height', 50)
+                   .attr('width', 50)
+                   .attr('x',this.x)
+                   .attr('y', this.y)
+                   .attr('cx',this.cx)
+                   .attr('cy', this.cy)
+                   .attr('r',this.r)
+                   .attr('fill', 'white');
+
     this.transform({
-      x: this.gameOptions.width * 0.5,
-      y: this.gameOptions.height * 0.5
+      x: gameOptions.width * 0.5,
+      y: gameOptions.height * 0.5
     });
     this.setupDragging();
     return this;
@@ -62,8 +70,8 @@ class Player {
 
   setX(x) {
     var maxX, minX;
-    minX = this.gameOptions.padding;
-    maxX = this.gameOptions.width - this.gameOptions.padding;
+    minX = gameOptions.padding;
+    maxX = gameOptions.width - gameOptions.padding - 30;
     if (x <= minX) x = minX;
     if (x >= maxX) x = maxX;
     return this.x = x;
@@ -75,18 +83,17 @@ class Player {
 
   setY(y) {
     var maxY, minY;
-    minY = this.gameOptions.padding;
-    maxY = this.gameOptions.height - this.gameOptions.padding;
+    minY = gameOptions.padding;
+    maxY = gameOptions.height - gameOptions.padding - 30;
     if (y <= minY) y = minY;
     if (y >= maxY) y = maxY;
     return this.y = y;
   }
 
   transform(opts) {
-    this.angle = opts.angle || this.angle;
     this.setX(opts.x || this.x);
     this.setY(opts.y || this.y);
-    return this.el.attr('transform', ("rotate(" + this.angle + "," + (this.getX()) + "," + (this.getY()) + ") ") + ("translate(" + (this.getX()) + "," + (this.getY()) + ")"));
+    return this.el.attr('transform', ("translate(" + (this.getX()) + "," + (this.getY()) + ")"));
   };
 
   moveAbsolute(x, y) {
@@ -99,8 +106,7 @@ class Player {
   moveRelative(dx, dy) {
     return this.transform({
       x: this.getX() + dx,
-      y: this.getY() + dy,
-      angle: 360 * (Math.atan2(dy, dx) / (Math.PI * 2))
+      y: this.getY() + dy
     });
   }
 
