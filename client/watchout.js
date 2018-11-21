@@ -27,7 +27,7 @@ var updateScore = function() {
 };
 
 var updateBestScore = function() {
-  gameStats.bestScore = Math.max([gameStats.bestScore, gameStats.score]);
+  gameStats.bestScore = Math.max(gameStats.bestScore, gameStats.score);
   return d3.select('.highscore').text('High score: ' + gameStats.bestScore);
 };
 
@@ -177,9 +177,9 @@ var renderEnemies = function(enemy_data) {
 
   var onCollision = function() {
     collisionHappened = true;
-    updateBestScore();
+    updateScore();
     gameStats.score = 0;
-    return updateScore();
+
   };
 
   var tweenWithCollisionDetection = function(endData) {
@@ -222,6 +222,7 @@ var play = function() {
       // the enemy over the player should be 1 collision
       gameStats.collisions += 1;
       d3.select('.collisions').text('Collisions number: ' + gameStats.collisions);
+      updateBestScore();
     }
 
     var newEnemyPositions = createEnemies();
