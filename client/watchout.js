@@ -31,6 +31,8 @@ var updateBestScore = function() {
   return d3.select('.highscore').text('High score: ' + gameStats.bestScore);
 };
 
+var collisionHappened = false;
+
 /////////////////////////////////////////////////////////////////////////
 // Player class
 
@@ -48,8 +50,6 @@ class Player {
   render(board) {
     this.el = board.append('svg:circle')
                    .attr('class','player')
-                   .attr('height', 50)
-                   .attr('width', 50)
                    .attr('x',this.x)
                    .attr('y', this.y)
                    .attr('cx',this.cx)
@@ -151,8 +151,6 @@ var renderEnemies = function(enemy_data) {
 
   enemies.enter().append('svg:circle')
                  .attr('class', 'enemy')
-                 .attr('height', 50)
-                 .attr('width', 50)
                  .attr('cx', function(enemy) {
                    return axes.x(enemy.x);
                  })
@@ -178,8 +176,7 @@ var renderEnemies = function(enemy_data) {
 
 
   var onCollision = function() {
-    gameStats.collisions += 1;
-    d3.select('.collisions').text('Collisions number: ' + gameStats.collisions);
+    collisionHappened = true;
     updateBestScore();
     gameStats.score = 0;
     return updateScore();
@@ -219,6 +216,14 @@ players.push(new Player(gameOptions).render(gameBoard));
 var play = function() {
 
   var gameTurn = function() {
+    if (collisionHappened === true) {
+      // increase Collision by 1 every round not every movment for
+      // the enemy object over the player. 10 movement ber round for
+      // the enemy over the player should be 1 collision
+      gameStats.collisions += 1;
+      d3.select('.collisions').text('Collisions number: ' + gameStats.collisions);
+    }
+
     var newEnemyPositions = createEnemies();
     return renderEnemies(newEnemyPositions);
 
