@@ -27,7 +27,7 @@ var updateScore = function() {
 };
 
 var updateBestScore = function() {
-  gameStats.bestScore = _.max([gameStats.bestScore, gameStats.score]);
+  gameStats.bestScore = Math.max([gameStats.bestScore, gameStats.score]);
   return d3.select('.highscore').text('High score: ' + gameStats.bestScore);
 };
 
@@ -36,7 +36,7 @@ var updateBestScore = function() {
 
 class Player {
 
-  constructor(gameOptions) {
+  constructor() {
   this.x = 0;
   this.cx = 25;
   this.y = 0;
@@ -47,6 +47,7 @@ class Player {
 
   render(board) {
     this.el = board.append('svg:circle')
+                   .attr('class','player')
                    .attr('height', 50)
                    .attr('width', 50)
                    .attr('x',this.x)
@@ -54,6 +55,7 @@ class Player {
                    .attr('cx',this.cx)
                    .attr('cy', this.cy)
                    .attr('r',this.r)
+                   // give the player white color by default
                    .attr('fill', 'white');
 
     this.transform({
@@ -124,6 +126,92 @@ class Player {
 
 // finish player class
 /////////////////////////////////////////////////////////////////////////
+// enemy class
+
+var createEnemies = function() {
+  var result = [];
+  for (var i = 0; i < gameOptions.nEnemies; i++) {
+    var enemy =  {
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100
+    };
+    result.push(enemy);
+  }
+
+  return result;
+};
+
+var renderEnemies = function(enemy_data) {
+
+  var enemies = gameBoard.selectAll('circle.enemy')
+                     .data(enemy_data, function(d) {
+                       return d.id;
+                     });
+
+  enemies.enter().append('svg:circle')
+                 .attr('class', 'enemy')
+                 .attr('height', 50)
+                 .attr('width', 50)
+                 .attr('cx', function(enemy) {
+                   return axes.x(enemy.x);
+                 })
+                 .attr('cy', function(enemy) {
+                   return axes.y(enemy.y);
+                 })
+                 .attr('r', 23)
+                 // give the enemy red color by default
+                 .attr('fill', 'red');
+
+  enemies.exit().remove();
+
+  var checkCollision = function(enemy, collidedCallback) {
+    return players.forEach(function(player) {
+      var radiusSum, separation, xDiff, yDiff;
+      radiusSum = parseFloat(enemy.attr('r')) + player.r;
+      xDiff = parseFloat(enemy.attr('cx')) - player.x;
+      yDiff = parseFloat(enemy.attr('cy')) - player.y;
+      separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+      if (separation < radiusSum) return collidedCallback(player, enemy);
+    });
+  };
+
+
+  var onCollision = function() {
+    gameStats.collisions += 1;
+    d3.select('.collisions').text('Collisions number: ' + gameStats.collisions);
+    updateBestScore();
+    gameStats.score = 0;
+    return updateScore();
+  };
+
+  var tweenWithCollisionDetection = function(endData) {
+    var endPos, enemy, startPos;
+    enemy = d3.select(this);
+    startPos = {
+      x: parseFloat(enemy.attr('cx')),
+      y: parseFloat(enemy.attr('cy'))
+    };
+    endPos = {
+      x: axes.x(endData.x),
+      y: axes.y(endData.y)
+    };
+    return function(t) {
+      var enemyNextPos;
+      checkCollision(enemy, onCollision);
+      enemyNextPos = {
+        x: startPos.x + (endPos.x - startPos.x) * t,
+        y: startPos.y + (endPos.y - startPos.y) * t
+      };
+      return enemy.attr('cx', enemyNextPos.x).attr('cy', enemyNextPos.y);
+    };
+  };
+
+  return enemies.transition().duration(500).attr('r', 10).transition().duration(2000).tween('custom', tweenWithCollisionDetection);
+};
+
+// finish enemy class
+/////////////////////////////////////////////////////////////////////////
 
 var players = [];
 players.push(new Player(gameOptions).render(gameBoard));
@@ -131,8 +219,8 @@ players.push(new Player(gameOptions).render(gameBoard));
 var play = function() {
 
   var gameTurn = function() {
-    // var newEnemyPositions = createEnemies();
-    // return render(newEnemyPositions);
+    var newEnemyPositions = createEnemies();
+    return renderEnemies(newEnemyPositions);
 
   };
 
@@ -143,7 +231,7 @@ var play = function() {
 
   gameTurn();
   setInterval(gameTurn, 2000);
-  return setInterval(increaseScore, 50);
+  return setInterval(increaseScore, 100);
 
 };
 
