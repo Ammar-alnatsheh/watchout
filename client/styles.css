@@ -9,7 +9,20 @@ body, html{
   background-size: cover;
   color: white;
 }
-div {
 
+.player{
 
+}
+
+.enemy {
+
+}
+
+.footer{
+  display:flex;
+  align-items: center;
+}
+
+.spacer{
+  width: 20px;
 }

@@ -220,8 +220,13 @@ var play = function() {
       // increase Collision by 1 every round not every movment for
       // the enemy object over the player. 10 movement ber round for
       // the enemy over the player should be 1 collision
+      collisionHappened = false;
       gameStats.collisions += 1;
       d3.select('.collisions').text('Collisions number: ' + gameStats.collisions);
+      if (!muteSound) {
+        document.getElementById('explosion').play();
+      }
+
       updateBestScore();
     }
 
@@ -242,3 +247,20 @@ var play = function() {
 };
 
 play();
+
+/////////////////////////////////////////////////////////
+/// Extra features like sound
+var muteSound = false;
+
+var mute = function() {
+  if (muteSound) {
+    muteSound = false;
+    document.getElementById("music").innerHTML = "Mute";
+    document.getElementById('backgroundMusic').play();
+  } else {
+    muteSound = true;
+    document.getElementById("music").innerHTML = "Play";
+    document.getElementById('backgroundMusic').pause();
+  }
+
+};

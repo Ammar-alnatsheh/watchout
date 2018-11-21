@@ -18,7 +18,12 @@
     </div>
     <script src="lib/d3.js" charset="utf-8"></script>
     <script src='watchout.js'></script>
-    <h5>Coded by Ammar Alnatsheh HRsf-108 </h5>
-    <embed src="sound/UrbanJungle.mp3" width="180" height="90" loop="true" autostart="true" hidden="true" />
+    <div class="footer">
+      <h5>Coded by Ammar Alnatsheh HRsf-108 </h5>
+      <div class="spacer"></div>
+      <audio id="backgroundMusic" src="sound/UrbanJungle.mp3" loop="true" autostart="true" hidden="true" controls="true"></audio>
+      <audio id="explosion" src="sound/Explosion.mp3" hidden="true"></audio>
+      <button id="music" type="button" onclick="mute()">Play Music</button>
+    </div>
   </body>
 </html>
