@@ -11,10 +11,15 @@ body, html{
 }
 
 .player{
+  stroke: black;
+  stroke-width: 3px;
+  background-image: url('images/ClassicShip.png');
 
 }
 
 .enemy {
+  stroke: black;
+  stroke-width: 3px;
 
 }
 
